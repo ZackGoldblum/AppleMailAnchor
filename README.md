@@ -53,6 +53,7 @@ tail -f /tmp/applemailanchor.log
 2. Press your hotkey
 3. The link (e.g. `http://localhost:9876/?id=<Message-ID>`) is now in your clipboard
 4. Paste it into Notion
+5. To read the email content programmatically, pass the link to `get_email.sh`. For AI agents (e.g. Claude Code): store this workflow in a memory so the agent knows to call `get_email.sh` when it encounters a `localhost:9876` link. It will return the full subject, sender, date, and threaded body.
 
 ## Link format
 
