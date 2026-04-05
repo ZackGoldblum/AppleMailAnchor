@@ -13,29 +13,33 @@ Link to specific emails from Notion (or anywhere) using a Raycast hotkey. Clicki
 
 | File | Purpose |
 |------|---------|
-| `~/scripts/applemailanchor.sh` | Raycast script: copies a Notion-compatible email link to clipboard |
+| `setup.sh` | One-time setup script: installs everything and starts the server |
 | `server.py` | Local HTTP server on `localhost:9876`: translates link clicks into `message://` opens in Apple Mail |
+| `applemailanchor.sh` | Raycast script: copies a Notion-compatible email link to clipboard (installed to `~/scripts/` by setup) |
 | `get_email.sh` | Utility script: given a link or Message-ID, returns full email content via AppleScript |
+
+## Prerequisites
+
+- macOS with Apple Mail configured
+- Python 3 installed — verify with `python3 --version`
+- [Raycast](https://www.raycast.com) installed
 
 ## Setup
 
-### 1. Start the server
+### 1. Run the setup script
 
-The server runs automatically at login via launchd and restarts if it crashes.
+From the project directory:
 
-**Plist location:** `~/Library/LaunchAgents/com.applemailanchor.plist`
-
-To manage manually:
 ```bash
-# Stop
-launchctl unload ~/Library/LaunchAgents/com.applemailanchor.plist
-# Start
-launchctl load ~/Library/LaunchAgents/com.applemailanchor.plist
-# Logs
-tail -f /tmp/applemailanchor.log
+bash setup.sh
 ```
 
-### 2. Add the Raycast script directory
+This will:
+- Copy `applemailanchor.sh` to `~/scripts/`
+- Generate and install the launchd plist with the correct paths for your machine
+- Start the server immediately and register it to run at login
+
+### 2. Add the script directory to Raycast
 
 1. Open Raycast (`⌘Space`)
 2. Type **Script Commands** → open it
@@ -47,26 +51,24 @@ tail -f /tmp/applemailanchor.log
 2. Find **AppleMailAnchor** in the list
 3. Click the hotkey field and press your desired combo (e.g. `⌥⌘C`)
 
-### 4. Usage
-
-1. Select an email in Apple Mail
-2. Press your hotkey
-3. The link (e.g. `http://localhost:9876/?id=<Message-ID>`) is now in your clipboard
-4. Paste it into Notion
-5. To read the email content programmatically, pass the link to `get_email.sh`. For AI agents (e.g. Claude Code): store this workflow in a memory so the agent knows to call `get_email.sh` when it encounters a `localhost:9876` link. It will return the full subject, sender, date, and threaded body.
-
-## Link format
-
-```
-http://localhost:9876/?id=<RFC-Message-ID>
-```
-
-## Reading email content programmatically
-
-Use `get_email.sh` — accepts either the full link or a raw Message-ID:
-
+**Manage the server manually:**
 ```bash
-bash AppleMailAnchor/get_email.sh "http://localhost:9876/?id=<Message-ID>"
+# Stop
+launchctl unload ~/Library/LaunchAgents/com.applemailanchor.plist
+# Start
+launchctl load ~/Library/LaunchAgents/com.applemailanchor.plist
+# Logs
+tail -f /tmp/applemailanchor.log
 ```
 
-Returns subject, sender, date, and full body (including quoted thread). Requires Apple Mail to be open.
+## Usage
+
+1. Open Apple Mail and select an email
+2. Press your Raycast hotkey (Mail must be the active window)
+3. The link is copied to your clipboard: `http://localhost:9876/?id=<Message-ID>`
+4. Paste it into Notion — clicking it will open the email in Apple Mail
+5. To read the email content programmatically (e.g. via an AI agent), pass the link to `get_email.sh`:
+   ```bash
+   bash get_email.sh "http://localhost:9876/?id=<Message-ID>"
+   ```
+   For AI agents (e.g. Claude Code): store this workflow in memory so the agent knows to call `get_email.sh` when it encounters a `localhost:9876` link. It will return the full subject, sender, date, and threaded body.
