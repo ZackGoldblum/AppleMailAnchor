@@ -6,7 +6,7 @@ INPUT="$1"
 
 # Extract Message-ID from URL if needed
 if [[ "$INPUT" == *"localhost:9876"* ]]; then
-    MSG_ID=$(python3 -c "from urllib.parse import urlparse, parse_qs; print(parse_qs(urlparse('$INPUT').query)['id'][0])")
+    MSG_ID=$(python3 -c "from urllib.parse import urlparse, unquote; q=urlparse('$INPUT').query; print(unquote(next(p[3:] for p in q.split('&') if p.startswith('id='))))")
 else
     MSG_ID="$INPUT"
 fi

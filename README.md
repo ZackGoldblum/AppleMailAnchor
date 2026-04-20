@@ -4,10 +4,12 @@ Link to specific emails from Notion (or anywhere) using a Raycast hotkey. Clicki
 
 ## How it works
 
-1. Select an email in Apple Mail
+1. Select any email in a thread in Apple Mail
 2. Press the Raycast hotkey → the link is copied to clipboard
 3. Paste into Notion (or any app)
 4. Clicking the link hits the local server, which opens the email in Apple Mail
+
+The script automatically finds the most recent message in the thread — including sent replies — so the link always opens to the latest context regardless of which email in the thread was selected.
 
 ## Files
 
@@ -63,9 +65,9 @@ tail -f /tmp/applemailanchor.log
 
 ## Usage
 
-1. Open Apple Mail and select an email
+1. Open Apple Mail and select any email in the thread
 2. Press your Raycast hotkey (Mail must be the active window)
-3. The link is copied to your clipboard: `http://localhost:9876/?id=<Message-ID>`
+3. The link is copied to your clipboard, pointing to the most recent message in the thread
 4. Paste it into Notion — clicking it will open the email in Apple Mail
 5. To read the email content programmatically (e.g. via an AI agent), pass the link to `get_email.sh`:
    ```bash
