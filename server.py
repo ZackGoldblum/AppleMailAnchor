@@ -1,16 +1,22 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, unquote
 import subprocess
 
 class MailRedirectHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
-        params = parse_qs(parsed.query)
-        
-        if 'id' in params:
-            msg_id = params['id'][0]
+        msg_id = None
+        for part in parsed.query.split('&'):
+            if part.startswith('id='):
+                # unquote (not parse_qs) to preserve + signs in Gmail message IDs
+                msg_id = unquote(part[3:])
+                break
+
+        if msg_id:
+            msg_id = msg_id.strip('<>').strip()
             mail_url = f"message://%3C{msg_id}%3E"
-            subprocess.run(['open', mail_url])
+            # osascript avoids `open` re-encoding % signs in the URL
+            subprocess.run(['osascript', '-e', f'open location "{mail_url}"'])
             
             html = b"""
             <html><body>
